@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html xmlns:v-on="http://www.w3.org/1999/xhtml">
+
+<head>
+    <!-- 页面meta -->
+    <meta charset="GBK">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>广告管理</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="../plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../plugins/adminLTE/css/AdminLTE.css">
+    <link rel="stylesheet" href="../plugins/adminLTE/css/skins/_all-skins.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+	<script src="../plugins/jQuery/jquery-2.2.3.min.js"></script>
+    <script src="../plugins/bootstrap/js/bootstrap.min.js"></script>
+
+	<script src="../js/vue.min.js"></script>
+</head>
+
+<body class="hold-transition skin-red sidebar-mini">
+  <!-- .box-body -->
+                
+                    <div class="box-header with-border">
+                        <h3 class="box-title">广告管理</h3>
+                    </div>
+
+                    <div class="box-body">
+
+                        <!-- 数据表格 -->
+                        <div class="table-box" id="contentAddId">
+
+                            <!--工具栏-->
+                            <div class="pull-left">
+                                <div class="form-group form-inline">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-default" title="新建" data-toggle="modal" data-target="#editModal" ><i class="fa fa-file-o"></i> 新建</button>
+                                        <button type="button" class="btn btn-default" title="删除" @click="delContent()"><i class="fa fa-trash-o"></i> 删除</button>
+                                        <button type="button" class="btn btn-default" title="开启" onclick='confirm("你确认要开启吗？")'><i class="fa fa-check"></i> 开启</button>
+                                        <button type="button" class="btn btn-default" title="屏蔽" onclick='confirm("你确认要屏蔽吗？")'><i class="fa fa-ban"></i> 屏蔽</button>
+                                        <button type="button" class="btn btn-default" title="刷新" onclick="window.location.reload();"><i class="fa fa-refresh"></i> 刷新</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="box-tools pull-right">
+                                <div class="has-feedback">
+							                                  
+                                </div>
+                            </div>
+                            <!--工具栏/-->
+
+			                  <!--数据列表-->
+			                  <table id="dataList" class="table table-bordered table-striped table-hover dataTable">
+			                      <thead>
+			                          <tr>
+			                              <th class="" style="padding-right:0px">
+			                                  <input id="selall" type="checkbox" class="icheckbox_square-blue">
+			                              </th> 
+										  <th class="sorting_asc">广告ID</th>
+									      <th class="sorting">分类ID</th>
+									      <th class="sorting">标题</th>
+									      <th class="sorting">URL</th>		
+									      <th class="sorting">图片</th>	
+									      <th class="sorting">排序</th>		
+									      <th class="sorting">是否有效</th>											     						      							
+					                      <th class="text-center">操作</th>
+			                          </tr>
+			                      </thead>
+			                      <tbody>
+			                          <tr v-for="entity in contentList">
+			                              <td><input  type="checkbox" name="hobby" :value="entity.id"></td>
+				                          <td>{{entity.id}}</td>
+									      <td>{{entity.categoryId}}</td>
+									      <td>{{entity.title}}</td>
+									      <td>{{entity.url}}</td>
+									      <td>
+											<!--<img :src="entity.pic" width="100" height="100">-->
+											  {{entity.pic}}
+									      </td>
+									      <td>{{entity.sortOrder}}</td>
+									      <td>{{entity.status == "true"?"有效":"无效"}}</td>
+		                                  <td class="text-center">                                           
+		                                 	  <button type="button" class="btn bg-olive btn-xs" data-toggle="modal" data-target="#editModal" @click="update(entity.id)">修改</button>
+		                                  </td>
+			                          </tr>
+			                      </tbody>
+			                  </table>
+			                  <!--数据列表/-->
+							<ul class="pagination pagination-sm">
+								<li><a href="javascript:void(0);" onclick="shouye();">首页</a></li>
+								<li><a href="javascript:void(0);" onclick="shangyiye();">上一页</a></li>
+								<template v-for="n in contentPage">
+									<li><a href="javascript:void(0);" v-on:click="aaa(n);">{{n}}</a></li>
+								</template>
+								<li><a href="javascript:void(0);" onclick="xiayiye();">下一页</a></li>
+								<li><a href="javascript:void(0);" onclick="weiye();">尾页</a></li>
+							</ul>
+
+						</div>
+                        <!-- 数据表格 /-->
+                     </div>
+                    <!-- /.box-body -->
+
+		
+<!-- 编辑窗口 -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" >
+	<div class="modal-content" id="ggAddId">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<h3 id="myModalLabel">广告编辑</h3>
+		</div>
+		<div class="modal-body">							
+			
+			<table class="table table-bordered table-striped"  width="800px">
+				<tr>
+		      		<td>广告分类</td>
+		      		<td >
+						<input  class="form-control" placeholder="ID" style="display:none;" v-model="tbContent.id">
+		      			<select class="form-control" id="searchType" v-model="tbContent.categoryId">
+							<!--<option value="1">11111</option>-->
+		                </select>
+		      		</td>
+		      	</tr>
+		      	<tr>
+		      		<td>标题</td>
+		      		<td><input  class="form-control" placeholder="标题" v-model="tbContent.title">  </td>
+		      	</tr>
+			    <tr>
+		      		<td>URL</td>
+		      		<td><input  class="form-control" placeholder="URL" v-model="tbContent.url">  </td>
+		      	</tr>	
+		      	<tr>
+		      		<td>排序</td>
+		      		<td><input  class="form-control" placeholder="排序" v-model="tbContent.sortOrder">  </td>
+		      	</tr>			      	
+		      <!--	<tr>
+		      		<td>广告图片</td>
+		      		<td>
+						<table>
+							<tr>
+								<td>
+								<input type="file" id="file" v-model="tbContent.pic"/>
+					                <button class="btn btn-primary" type="button" >
+				                   		上传
+					                </button>	
+					            </td>
+								<td>
+									&lt;!&ndash;<img  src="{{entity.pic}}" width="200px" height="100px">&ndash;&gt;
+								</td>
+							</tr>						
+						</table>
+		      		</td>
+		      	</tr>-->
+		      	<tr>
+			<td>是否有效</td>
+			<td>
+				<input type="checkbox" id="1"  value="1" v-model="tbContent.status" >
+				<label for="1">有效</label>
+			</td>
+		</tr>
+			</table>
+
+		</div>
+		<div class="modal-footer">						
+			<button class="btn btn-success" data-dismiss="modal" v-on:click="add(tbContent)"  aria-hidden="true">保存</button>
+			<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">关闭</button>
+		</div>
+	  </div>
+	</div>
+</div>
+
+ <script type="text/javascript">
+	 $(function() {
+		 initType();
+	 })
+
+	 function initType() {
+		 $.post('../brand/findTbContentCategoryAll.do',{},function(data){
+			 var html = '<option value="-1">请选择</option>';
+			 for (var i = 0; i < data.length; i++) {
+				 html += '<option value="'+data[i].id+'">'+data[i].name+'</option>';
+			 }
+			 $("#searchType").html(html)
+		 })
+	 }
+
+	 var vm;
+	 $(function () {
+		 $.ajax({
+			 type: "post",
+			 url: "../brand/search.do",
+			 data:"",
+			 dataType: "",
+			 success: function (result) {
+				 /*alert(result.rows)
+                     alert(result.totalPage)
+                     alert(result.pageSize)
+                     alert(result.pageNum)
+                     alert(result.total)*/
+				 vm = new Vue({
+					 el: '#contentAddId',
+					 data: {
+						 contentList: result.rows,
+						 contentPage: result.totalPage,
+						 pageSize: result.pageSize,
+						 pageNum: result.pageNum,
+						 total: result.total
+					 }
+				 })
+			 },
+			 error: function () {
+				 alert("系统错误，请联系管理员！");
+			 }
+		 })
+	 })
+
+
+	 function search(page, rows) {
+		 $.ajax({
+			 type: "post",
+			 /*url: "../brand/findType.do?page="+page+"&rows="+rows,*/
+			 url: "../brand/search.do",
+			 data: {title: $("#title").val(),page:page,rows:rows},
+			 dataType: "",
+			 success: function (result) {
+				 vm.contentList = result.rows;
+				 vm.contentPage = result.totalPage;
+				 vm.pageSize = result.pageSize;
+				 vm.pageNum = result.pageNum;
+				 vm.total = result.total;
+			 },
+			 error: function () {
+				 alert("系统错误，请联系管理员！");
+			 }
+		 })
+	 }
+
+	 function shangyiye() {
+		 if (vm.pageNum == 1) {
+			 alert("当前页已经是第一页");
+		 } else {
+			 /*alert(vm.pageNum)
+             alert(vm.pageSize)*/
+			 search(vm.pageNum-1, vm.pageSize);
+		 }
+	 }
+
+	 function xiayiye() {
+		 if (vm.pageNum == vm.contentPage) {
+			 alert("当前页已经是最后一页");
+		 } else {
+
+			 search(vm.pageNum+1, vm.pageSize);
+		 }
+	 }
+	 function aaa(n) {
+		 search(n, vm.pageSize);
+	 }
+	 function shouye() {
+		 search(1, vm.pageSize);
+	 }
+	 function weiye() {
+		 search(vm.contentPage, vm.pageSize);
+	 }
+
+
+
+  var contentVUE = new Vue({
+		 el: '#ggAddId',
+		 data: {
+			 tbContent:{
+				 id:"",
+				 categoryId:"",
+				 title:"",
+				 url:"",
+				 pic:"",
+				 status:"",
+				 sortOrder:""
+			 },
+		 }
+	 })
+
+	 function add(){
+		 $.ajax({
+			 type:"post",
+			 url:"../brand/addContent.do",
+			 data:contentVUE.tbContent,
+			 dataType:"json",
+			 success:function (result) {
+				 location.href=location;
+			 },
+			 error:function () {
+				 alert("系统错误，请联系管理员！");
+			 }
+		 })
+	 }
+
+	 delContent = function () {
+		 var arr = $("[name = 'hobby']:checked")
+		 if (arr.length > 0) {
+			 var ids = "";
+			 for (var i = 0; i <arr.length ; i++) {
+				 ids += ids== ""?arr[i].value:","+arr[i].value;
+			 }
+			 $.post("../brand/delContentIds.do",{ids:ids},function (data) {
+				 alert(data.message)
+				 location.href=location;
+			 })
+		 }else {
+			 bootbox.alert({
+				 title:'提示',
+				 message:'请选择要删除的参数！！'
+			 })
+		 }
+	 }
+
+	 function update(id) {
+
+		 $.post('../brand/updateContentById.do',{id:id},function(data){
+			 contentVUE.tbContent=data;
+
+		 })
+	 }
+</script>
+</body>
+
+</html>
